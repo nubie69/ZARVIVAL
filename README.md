@@ -29,6 +29,8 @@ Goblin moves fastest, Rez regenerates power fastest, and Skull has the most heal
 
 Enemies stand with their feet on the platform surface and use collision boxes sized for each species. They accelerate into patrol or chase movement, turn away from walls and gaps, and chase only along an unobstructed platform. Their animations follow their movement and attack state.
 
+Trees use individual animation frames, with roots anchored to the terrain, and the distant forest scrolls in layers. Levels have clear skies, forest rain, morning mist, windy rain, and clearing skies respectively. Rain stops at terrain and platform roofs. The **Weather** button toggles atmospheric effects; reduced-motion preferences keep the atmosphere static. Scenery and weather animations pause with gameplay.
+
 Scores and a level timer track each attempt. Level progress and the best score are saved locally in your browser. **Continue** resumes the saved level with your fighter and accumulated score; health resets at the start of each level. A retry resets that level's score. The game remains playable when browser storage is unavailable.
 
 The browser adaptation reuses the original sprite sheets and RGB-encoded level maps, with a JavaScript Canvas engine for movement, combat, enemies, potions, breakable containers, spikes, water, and cannons. It includes pause, retry, and game-completion screens. Physics, enemy behavior, and UI are adapted for the browser; this is not an exact emulation of the Java application. The original Java sources are preserved.

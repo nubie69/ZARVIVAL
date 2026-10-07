@@ -16,9 +16,11 @@ test('browser controller loads sprites, resumes progress, advances levels and re
       for(let y=0;y<height;y++)for(let x=0;x<width;x++)data.set([y>=11?0:11,255,255,255],(y*width+x)*4);
       data[(10*width+2)*4+1]=100;
       data[(10*width+3)*4+1]=0;
+      data[(10*width+8)*4+2]=7;
+      data[(11*width+12)*4+2]=9;
       return {data};
     },
-    clearRect(){},save(){},restore(){},translate(){},scale(){},fillRect(){},fillText(){},beginPath(){},arc(){},stroke(){},strokeRect(){},
+    clearRect(){},save(){},restore(){},translate(){},scale(){},fillRect(){},fillText(){},beginPath(){},arc(){},stroke(){},strokeRect(){},createLinearGradient(){return {addColorStop(){}};},
   };
   class Element {
     constructor(){this.hidden=false;this.disabled=false;this.dataset={};this.listeners={};this.classList={toggle(){}};}
@@ -53,6 +55,8 @@ test('browser controller loads sprites, resumes progress, advances levels and re
     assert.match(elements.get('level-label').textContent,/LEVEL 4.*SKULL/);
     assert.equal(elements.get('health').max,140);
     assert.match(elements.get('score-label').textContent,/220 PTS/);
+    elements.get('weather').onclick();assert.equal(elements.get('weather').textContent,'Weather: off');
+    nextFrame(1034);elements.get('weather').onclick();assert.equal(elements.get('weather').textContent,'Weather: on');
     elements.get('pause').onclick();assert.equal(elements.get('overlay-title').textContent,'Game paused');
     elements.get('primary').onclick();assert.equal(elements.get('overlay').hidden,true);
     keyboard.keydown({code:'KeyK',target:elements.get('game'),repeat:false,preventDefault(){}});

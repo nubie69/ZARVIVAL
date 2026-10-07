@@ -1,9 +1,11 @@
 import { World, characters, decodeLevel, enemySprite, TILE, WIDTH, HEIGHT } from './engine.js';
+import { prepareTrees, treeSprite, drawBackdrop, drawWeather, weatherPresets } from './scenery.js';
 const $=id=>document.getElementById(id);
 const canvas=$('game'),ctx=canvas.getContext('2d');ctx.imageSmoothingEnabled=false;
 const images={},levels=[],keys=new Set();
 let world,selected=0,levelIndex=0,state='loading',muted=true,last=0,accumulator=0,announced=false;
 let cameraX=0,shake=0,runScore=0,particles=[],labels=[];
+let trees=[],weatherEnabled=true;
 const reducedMotion=window.matchMedia?.('(prefers-reduced-motion: reduce)').matches??false;
 function readSave(){try{return JSON.parse(localStorage.getItem('zarvival-progress'));}catch{return null;}}
 function writeSave(value){try{if(value)localStorage.setItem('zarvival-progress',JSON.stringify(value));else localStorage.removeItem('zarvival-progress');}catch{/* The game also works with storage disabled. */}}
@@ -20,12 +22,13 @@ function overlay(tag,title,text,action,showCharacters=false){
   $('continue').hidden=true;$('best-label').textContent=`BEST SCORE ${bestScore(0)}`;
 }
 function menu(){state='menu';world=null;keys.clear();overlay('YOUR NEXT ADVENTURE','Choose your fighter','Three fighters. Five worlds. One way through.','New adventure →',true);$('health-wrap').hidden=true;$('level-label').textContent='THE ADVENTURE AWAITS';$('enemies-label').textContent='';$('score-label').textContent='';const s=savedRun();if(s){$('continue').hidden=false;$('continue').textContent=`Continue level ${s.level+1} · ${characters[s.character].name}`;}}
-function start(){world=new World(levels[levelIndex],selected);state='playing';announced=false;keys.clear();particles=[];labels=[];shake=0;cameraX=Math.max(0,Math.min(world.level.width*TILE-WIDTH,world.player.x-WIDTH*.4));writeSave({level:levelIndex,character:selected,score:runScore});$('overlay').hidden=true;$('pause').hidden=false;$('pause').textContent='Pause';$('health-wrap').hidden=false;canvas.focus();playMusic();}
+function start(){world=new World(levels[levelIndex],selected);trees=prepareTrees(world.level);state='playing';announced=false;keys.clear();particles=[];labels=[];shake=0;cameraX=Math.max(0,Math.min(world.level.width*TILE-WIDTH,world.player.x-WIDTH*.4));writeSave({level:levelIndex,character:selected,score:runScore});$('overlay').hidden=true;$('pause').hidden=false;$('pause').textContent='Pause';$('health-wrap').hidden=false;canvas.focus();playMusic();}
 function pause(){if(state==='playing'){state='paused';keys.clear();overlay('TAKE A BREATHER','Game paused','The forest can wait.','Resume →');}else if(state==='paused'){state='playing';$('overlay').hidden=true;$('pause').hidden=false;canvas.focus();playMusic();}}
 $('primary').onclick=()=>{if(state==='paused'){pause();return;}if(state==='menu'||state==='won'){levelIndex=0;runScore=0;}else if(state==='complete'){levelIndex++;runScore+=world.score;}start();};
 $('continue').onclick=()=>{const s=savedRun();if(!s)return;levelIndex=s.level;runScore=s.score;selectCharacter(s.character);start();};
 $('menu').onclick=menu;$('pause').onclick=pause;
 $('sound').onclick=()=>{muted=!muted;$('sound').textContent=`Sound: ${muted?'off':'on'}`;$('sound').setAttribute('aria-pressed',String(!muted));if(muted)music?.pause();else playMusic();};
+$('weather').onclick=()=>{weatherEnabled=!weatherEnabled;$('weather').textContent=`Weather: ${weatherEnabled?'on':'off'}`;$('weather').setAttribute('aria-pressed',String(weatherEnabled));};
 document.querySelectorAll('[data-character]').forEach(b=>b.onclick=()=>selectCharacter(Number(b.dataset.character)));
 function keydown(code,repeat=false){
   if(code==='Escape'&&!repeat){pause();return;}
@@ -53,8 +56,10 @@ function draw(elapsed=0){
   const p=world.player,l=world.level,target=Math.max(0,Math.min(l.width*TILE-WIDTH,p.x-WIDTH*.4)),t=world.time;
   if(state==='playing')cameraX+=(target-cameraX)*(1-Math.exp(-8*elapsed));
   const camera=cameraX;shake=Math.max(0,shake-elapsed*30);
+  const preset=weatherEnabled?weatherPresets[levelIndex]:weatherPresets[0];
+  drawBackdrop(ctx,images,camera,t,preset,!reducedMotion&&weatherEnabled);
   ctx.save();ctx.translate(-Math.round(camera)+(reducedMotion?0:Math.sin(t*95)*shake),reducedMotion?0:Math.cos(t*80)*shake*.5);
-  for(const o of world.objects){if(o.type>=7){const file=o.type===7?'Pine_tree.png':'Large_Tree.png';const im=images[file];ctx.drawImage(im,o.x-40,o.y-145,120,240);}}
+  for(const tree of trees){const visual=treeSprite(tree,t,!reducedMotion);if(visual.x+visual.w<camera||visual.x>camera+WIDTH)continue;sprite(visual.file,visual.sw,visual.sh,visual.row,visual.frame,visual.x,visual.y,visual.w,visual.h,visual.flip);}
   for(let y=0;y<l.height;y++)for(let x=Math.max(0,Math.floor(camera/TILE));x<Math.min(l.width,Math.ceil((camera+WIDTH)/TILE));x++){
     const tile=l.tiles[y][x];if(tile===11)continue;
     if(tile===48)sprite('water_atlas_animation.png',32,32,0,Math.floor(t*6)%4,x*TILE,y*TILE,TILE,TILE);
@@ -80,6 +85,7 @@ function draw(elapsed=0){
   for(const dot of particles){ctx.globalAlpha=Math.max(0,dot.life/.65);ctx.fillStyle=dot.color;ctx.fillRect(dot.x,dot.y,4,4);}ctx.globalAlpha=1;
   ctx.font='bold 17px system-ui';ctx.textAlign='center';for(const label of labels){ctx.globalAlpha=Math.min(1,label.life*3);ctx.fillStyle=label.color;ctx.fillText(label.text,label.x,label.y);}ctx.globalAlpha=1;ctx.textAlign='left';
   ctx.restore();
+  if(weatherEnabled)drawWeather(ctx,images,l,camera,t,preset,!reducedMotion);
   ctx.fillStyle='#15251c';ctx.fillRect(20,22,144,8);ctx.fillStyle=p.power>=30?'#8edce0':'#5b7778';ctx.fillRect(20,22,144*p.power/100,8);ctx.fillStyle='#eff4dc';ctx.font='12px system-ui';ctx.fillText(`POWER ${Math.floor(p.power)}${p.power<30?' · RECHARGING':''}`,20,46);
   // Whole-level radar helps locate enemies behind the player and on other platforms.
   const radar={x:WIDTH-225,y:20,w:205,h:65};ctx.fillStyle='#102018dc';ctx.fillRect(radar.x-8,radar.y-8,radar.w+16,radar.h+28);
@@ -101,7 +107,7 @@ function tick(now){const elapsed=last?Math.min((now-last)/1000,.1):0;last=now;ac
   draw(elapsed);requestAnimationFrame(tick);
 }
 async function load(){try{
-  await Promise.all(['BGnew.png','outside_sprites.png','water.png','water_atlas_animation.png','Pine_tree.png','Large_Tree.png','mushroom_sprite.png','Armadillo.png','Froggy.png','potions_sprites.png','objects_sprites.png','trap_atlas.png','Shooters.png','Ball.png',...characters.map(c=>c.file),...Array.from({length:5},(_,i)=>`lvls/${i+1}.png`)].map(image));
+  await Promise.all(['BGnew.png','outside_sprites.png','water.png','water_atlas_animation.png','Pine_tree.png','Large_Tree.png','pine1.png','pine2.png','mini_cloud.png','rain_particle.png','mushroom_sprite.png','Armadillo.png','Froggy.png','potions_sprites.png','objects_sprites.png','trap_atlas.png','Shooters.png','Ball.png',...characters.map(c=>c.file),...Array.from({length:5},(_,i)=>`lvls/${i+1}.png`)].map(image));
   for(let i=1;i<=5;i++){const im=images[`lvls/${i}.png`],scratch=document.createElement('canvas');scratch.width=im.width;scratch.height=im.height;const s=scratch.getContext('2d',{willReadFrequently:true});s.drawImage(im,0,0);levels.push(decodeLevel(im.width,im.height,s.getImageData(0,0,im.width,im.height).data));}
   document.querySelectorAll('[data-character] canvas').forEach((c,i)=>{const pc=characters[i],s=c.getContext('2d');s.imageSmoothingEnabled=false;const scale=90/Math.max(pc.sw,pc.sh);s.drawImage(images[pc.file],0,0,pc.sw,pc.sh,(100-pc.sw*scale)/2,(100-pc.sh*scale)/2,pc.sw*scale,pc.sh*scale);});
   $('primary').disabled=false;menu();requestAnimationFrame(tick);
