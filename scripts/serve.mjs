@@ -1,17 +1,20 @@
 import './build.mjs';
-import { createServer } from 'node:http';
-import { readFile } from 'node:fs/promises';
-import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { createGameServer, listenLocal } from './server.mjs';
 
-const root = path.resolve(fileURLToPath(new URL('../dist/', import.meta.url)));
-const types = { '.html': 'text/html', '.css': 'text/css', '.js': 'text/javascript', '.png': 'image/png', '.jpg': 'image/jpeg', '.wav': 'audio/wav' };
-createServer(async (req, res) => {
+const preferredPort = Number(process.env.PORT || 3000);
+if (!Number.isInteger(preferredPort) || preferredPort < 1 || preferredPort > 65535) {
+  console.error('PORT must be a whole number between 1 and 65535.');
+  process.exitCode = 1;
+} else {
   try {
-    const pathname = decodeURIComponent(new URL(req.url, 'http://localhost').pathname);
-    const target = path.resolve(root, `.${pathname === '/' ? '/index.html' : pathname}`);
-    if (!target.startsWith(root + path.sep)) { res.writeHead(403).end(); return; }
-    const data = await readFile(target);
-    res.writeHead(200, { 'Content-Type': types[path.extname(target)] || 'application/octet-stream' }).end(data);
-  } catch { res.writeHead(404).end('Not found'); }
-}).listen(Number(process.env.PORT || 3000), '127.0.0.1', () => console.log(`ZARVIVAL: http://localhost:${process.env.PORT || 3000}`));
+    const server = createGameServer(fileURLToPath(new URL('../dist/', import.meta.url)));
+    const port = await listenLocal(server, preferredPort, !process.env.PORT);
+    if (port !== preferredPort) console.log(`Port ${preferredPort} is busy; using ${port} instead.`);
+    console.log(`ZARVIVAL: http://127.0.0.1:${port}`);
+    console.log('Open this address in your browser. Press Ctrl+C here to stop the game server.');
+  } catch (error) {
+    console.error(`Could not start ZARVIVAL: ${error.message}`);
+    process.exitCode = 1;
+  }
+}

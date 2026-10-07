@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { World, decodeLevel, move, solid, TILE } from '../web/engine.js';
+import { World, characters, decodeLevel, move, solid, TILE } from '../web/engine.js';
 
 function level() {
   return { width:10,height:14,spawn:{x:96,y:442},tiles:Array.from({length:14},(_,y)=>Array(10).fill(y>=10?0:11)),enemies:[{type:0,x:320,y:448}],objects:[] };
@@ -11,6 +11,51 @@ test('decodes the original RGB tile, entity and object format',()=>{
   assert.deepEqual(map.spawn,{x:0,y:0});
   assert.equal(map.enemies.length,2);assert.equal(map.objects.length,3);
   assert.equal(solid(map,0,TILE),false);assert.equal(solid(map,TILE,0),true);
+});
+
+test('coyote time allows jumping just after leaving a platform',()=>{
+  const world=new World(level());world.player.y=350;world.player.coyote=.08;
+  world.update(1/60,{jump:true});assert.ok(world.player.vy<0);
+  assert.ok(world.events.some(e=>e.type==='jump'));
+});
+test('jump press before landing is buffered, holding does not auto-jump again',()=>{
+  const world=new World(level());world.player.y=436;world.player.vy=180;
+  world.update(1/60,{jump:true});assert.equal(world.player.grounded,false);
+  for(let i=0;i<6;i++)world.update(1/60,{jump:true});
+  assert.ok(world.player.vy<0);
+  for(let i=0;i<100;i++)world.update(1/60,{jump:true});
+  assert.equal(world.events.filter(e=>e.type==='jump').length,1);
+});
+test('releasing jump produces a shorter hop',()=>{
+  const held=new World(level()),tap=new World(level());held.player.grounded=true;tap.player.grounded=true;
+  held.update(1/60,{jump:true});tap.update(1/60,{jump:true});
+  for(let i=0;i<12;i++){held.update(1/60,{jump:true});tap.update(1/60,{jump:false});}
+  assert.ok(held.player.y<tap.player.y-25);
+});
+test('enemies warn before striking and attacks can interrupt the warning',()=>{
+  const map=level();map.enemies=[{type:0,x:135,y:442}];const world=new World(map);
+  world.update(1/60);assert.ok(world.enemies[0].windup>0);assert.equal(world.player.hp,100);
+  world.attack();world.update(1/60);assert.equal(world.enemies[0].windup,0);assert.equal(world.player.hp,100);
+  assert.ok(world.enemies[0].recovery>0);
+});
+test('enemy strike hits after its windup but can be dodged',()=>{
+  const map=level();map.enemies=[{type:0,x:135,y:442}];const hit=new World(map),dodge=new World(map);
+  hit.update(1/60);dodge.update(1/60);dodge.player.x=300;
+  for(let i=0;i<28;i++){hit.update(1/60);dodge.update(1/60);}
+  assert.equal(hit.player.hp,85);assert.equal(dodge.player.hp,100);
+});
+test('fighters have distinct movement, health and power regeneration',()=>{
+  const fighters=characters.map((_,i)=>new World(level(),i));
+  for(const w of fighters){w.player.power=50;w.update(1/60,{right:true});}
+  assert.ok(fighters[0].player.vx>fighters[2].player.vx);
+  assert.ok(fighters[2].player.maxHp>fighters[0].player.maxHp);
+  assert.ok(fighters[1].player.power>fighters[0].player.power);
+});
+test('kill feedback awards score and potions respect fighter maximum health',()=>{
+  const map=level();map.enemies=[{type:1,x:135,y:442}];map.objects=[{type:0,x:96,y:442}];
+  const world=new World(map,2);world.player.hp=135;world.attack();world.update(1/60);
+  assert.equal(world.player.hp,140);assert.equal(world.score,110);assert.equal(world.kills,1);
+  assert.ok(world.events.some(e=>e.type==='kill'));
 });
 test('floor collision stops a fast fall without tunnelling',()=>{
   const body={x:100,y:400,w:27,h:38,vy:900};

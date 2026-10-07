@@ -13,6 +13,8 @@ npm run dev
 
 Open http://localhost:3000. Select Goblin, Rez, or Skull and defeat all enemies to advance through the five original level maps.
 
+If port 3000 is already in use, the server automatically chooses the next available port. Open the exact `http://127.0.0.1:...` address printed in the terminal and keep that terminal open while playing. Press Ctrl+C to stop the server. An explicitly configured `PORT` is respected and reports a helpful message if it is busy.
+
 - Move: A / D or left / right arrows
 - Jump: Space or up arrow
 - Attack: J or left click
@@ -20,6 +22,12 @@ Open http://localhost:3000. Select Goblin, Rez, or Skull and defeat all enemies 
 - Pause: Escape or the Pause button
 - Touch devices: use the on-screen controls
 - Sound: enable with the Sound button; browsers require a user gesture before audio can play
+
+Jump presses are buffered shortly before landing, and you can still jump briefly after leaving a ledge. Tap jump for a short hop or hold it to jump higher. Holding jump does not repeatedly bounce on landing.
+
+Goblin moves fastest, Rez regenerates power fastest, and Skull has the most health and deals the most damage. Enemies show an amber warning before striking: dodge or hit them to interrupt the attack. Hits and pickups produce particles and floating labels, and the radar shows remaining enemies across the level. Reduced-motion preferences disable particles and camera shake.
+
+Scores and a level timer track each attempt. Level progress and the best score are saved locally in your browser. **Continue** resumes the saved level with your fighter and accumulated score; health resets at the start of each level. A retry resets that level's score. The game remains playable when browser storage is unavailable.
 
 The browser adaptation reuses the original sprite sheets and RGB-encoded level maps, with a JavaScript Canvas engine for movement, combat, enemies, potions, breakable containers, spikes, water, and cannons. It includes pause, retry, and game-completion screens. Physics, enemy behavior, and UI are adapted for the browser; this is not an exact emulation of the Java application. The original Java sources are preserved.
 

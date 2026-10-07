@@ -13,18 +13,19 @@
   <main>
     <div class="intro"><div><p class="eyebrow">INTO THE WILD</p><h1>Small heroes. Big fight.</h1></div><p>Choose your fighter. Defeat every enemy.<br>Survive all five levels.</p></div>
     <section class="game" aria-label="ZARVIVAL game">
-      <div class="hud"><span id="level-label">THE ADVENTURE AWAITS</span><div id="health-wrap" hidden>HP <meter id="health" min="0" max="100" value="100">100</meter></div><span id="enemies-label"></span><button id="pause" hidden>Pause</button></div>
+      <div class="hud"><span id="level-label">THE ADVENTURE AWAITS</span><div id="health-wrap" hidden>HP <meter id="health" min="0" max="100" value="100">100</meter><span id="health-number"></span></div><span id="score-label"></span><span id="enemies-label"></span><button id="pause" hidden>Pause</button></div>
       <div class="viewport">
         <canvas id="game" width="1248" height="672" tabindex="0" aria-label="Game. Move with A and D or arrow keys, jump with Space, attack with J, power attack with K, pause with Escape."></canvas>
         <div class="overlay" id="overlay">
           <p class="eyebrow" id="overlay-tag">YOUR NEXT ADVENTURE</p><h2 id="overlay-title">Choose your fighter</h2><p id="overlay-text" role="status">Loading the forest…</p>
-          <div id="characters" class="characters"><button data-character="0" class="selected" aria-pressed="true"><canvas width="100" height="100"></canvas><strong>Goblin</strong><small>Quick &amp; fearless</small></button><button data-character="1" aria-pressed="false"><canvas width="100" height="100"></canvas><strong>Rez</strong><small>Ready for battle</small></button><button data-character="2" aria-pressed="false"><canvas width="100" height="100"></canvas><strong>Skull</strong><small>Born to survive</small></button></div>
-          <button id="primary" class="primary" disabled>Enter the forest <span>→</span></button><button id="menu" hidden>Choose another fighter</button>
+          <div id="characters" class="characters"><button data-character="0" class="selected" aria-pressed="true"><canvas width="100" height="100"></canvas><strong>Goblin</strong><small>Fast · 100 HP · 25 damage</small></button><button data-character="1" aria-pressed="false"><canvas width="100" height="100"></canvas><strong>Rez</strong><small>Power regen · 115 HP · 30 damage</small></button><button data-character="2" aria-pressed="false"><canvas width="100" height="100"></canvas><strong>Skull</strong><small>Heavy hitter · 140 HP · 40 damage</small></button></div>
+          <button id="primary" class="primary" disabled>Enter the forest <span>→</span></button><button id="continue" hidden></button><p id="best-label"></p><button id="menu" hidden>Choose another fighter</button>
         </div>
       </div>
       <div class="touch" aria-label="Touch controls"><button data-key="ArrowLeft" aria-label="Move left">←</button><button data-key="ArrowRight" aria-label="Move right">→</button><button data-key="Space">Jump</button><button data-key="KeyJ">Attack</button><button data-key="KeyK">Power</button></div>
     </section>
     <div class="instructions"><span><kbd>A</kbd> <kbd>D</kbd> Move</span><span><kbd>SPACE</kbd> Jump</span><span><kbd>J</kbd> / click · Attack</span><span><kbd>K</kbd> Power attack</span><span><kbd>ESC</kbd> Pause</span></div>
+    <p class="game-tip">Tap jump for a short hop, hold for height. Strike during an enemy's amber warning to interrupt it. The radar tracks remaining enemies.</p>
     <footer><span>A pixel-sized adventure, made for your browser.</span><span>ZARVIVAL · 5 levels · 3 fighters</span></footer>
   </main>
   <script type="module" src="/game.js"></script>
