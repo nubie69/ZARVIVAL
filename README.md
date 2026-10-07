@@ -1,6 +1,52 @@
 # ZARVIVAL
 
-ZARVIVAL is a Java 2D platformer game developed with Java AWT/Swing. The game includes multiple playable characters, enemies, levels, audio, menus, options, credits, and pause/game-over screens.
+ZARVIVAL includes the original Java AWT/Swing platformer and a playable browser adaptation ready to deploy to Vercel.
+
+## Browser version
+
+Requires Node.js 22 or newer. No npm dependencies or Java installation are needed for the web build.
+
+```powershell
+npm install
+npm run dev
+```
+
+Open http://localhost:3000. Select Goblin, Rez, or Skull and defeat all enemies to advance through the five original level maps.
+
+- Move: A / D or left / right arrows
+- Jump: Space or up arrow
+- Attack: J or left click
+- Power attack: K or right click (uses power, which regenerates)
+- Pause: Escape or the Pause button
+- Touch devices: use the on-screen controls
+- Sound: enable with the Sound button; browsers require a user gesture before audio can play
+
+The browser adaptation reuses the original sprite sheets and RGB-encoded level maps, with a JavaScript Canvas engine for movement, combat, enemies, potions, breakable containers, spikes, water, and cannons. It includes pause, retry, and game-completion screens. Physics, enemy behavior, and UI are adapted for the browser; this is not an exact emulation of the Java application. The original Java sources are preserved.
+
+## Deploy to Vercel
+
+1. Push this repository to your Git provider and import it into Vercel.
+2. Use the **repository root** as the Root Directory, with the **Other** framework preset.
+3. Deploy. The committed `vercel.json` sets **Build Command** to `npm run build` and **Output Directory** to `dist`.
+
+No environment variables or backend services are required. The build copies `web/` and game resources into `dist/`. Keep `ZARVIVAL_FINAL/ZAR Studio(Final)/res/` in the repository: it is required during the build. Build scripts resolve paths from their own location and work on Windows and Linux.
+
+You can also deploy from the repository root with the Vercel CLI:
+
+```powershell
+npx vercel
+```
+
+For a local production build and game-engine checks:
+
+```powershell
+npm run build
+npm test
+```
+
+Vercel configuration reference: https://vercel.com/docs/project-configuration/vercel-json
+
+## Original desktop game
 
 ## Requirements
 

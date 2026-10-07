@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#111a18">
+  <meta name="description" content="Play ZARVIVAL, a pixel-art survival platformer. Choose your fighter and conquer five worlds.">
+  <title>ZARVIVAL — Play in your browser</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <header><a href="/" class="brand">Z<span>Λ</span>RVIVAL</a><span class="edition">BROWSER EDITION</span><button id="sound" aria-pressed="false">Sound: off</button></header>
+  <main>
+    <div class="intro"><div><p class="eyebrow">INTO THE WILD</p><h1>Small heroes. Big fight.</h1></div><p>Choose your fighter. Defeat every enemy.<br>Survive all five levels.</p></div>
+    <section class="game" aria-label="ZARVIVAL game">
+      <div class="hud"><span id="level-label">THE ADVENTURE AWAITS</span><div id="health-wrap" hidden>HP <meter id="health" min="0" max="100" value="100">100</meter></div><span id="enemies-label"></span><button id="pause" hidden>Pause</button></div>
+      <div class="viewport">
+        <canvas id="game" width="1248" height="672" tabindex="0" aria-label="Game. Move with A and D or arrow keys, jump with Space, attack with J, power attack with K, pause with Escape."></canvas>
+        <div class="overlay" id="overlay">
+          <p class="eyebrow" id="overlay-tag">YOUR NEXT ADVENTURE</p><h2 id="overlay-title">Choose your fighter</h2><p id="overlay-text" role="status">Loading the forest…</p>
+          <div id="characters" class="characters"><button data-character="0" class="selected" aria-pressed="true"><canvas width="100" height="100"></canvas><strong>Goblin</strong><small>Quick &amp; fearless</small></button><button data-character="1" aria-pressed="false"><canvas width="100" height="100"></canvas><strong>Rez</strong><small>Ready for battle</small></button><button data-character="2" aria-pressed="false"><canvas width="100" height="100"></canvas><strong>Skull</strong><small>Born to survive</small></button></div>
+          <button id="primary" class="primary" disabled>Enter the forest <span>→</span></button><button id="menu" hidden>Choose another fighter</button>
+        </div>
+      </div>
+      <div class="touch" aria-label="Touch controls"><button data-key="ArrowLeft" aria-label="Move left">←</button><button data-key="ArrowRight" aria-label="Move right">→</button><button data-key="Space">Jump</button><button data-key="KeyJ">Attack</button><button data-key="KeyK">Power</button></div>
+    </section>
+    <div class="instructions"><span><kbd>A</kbd> <kbd>D</kbd> Move</span><span><kbd>SPACE</kbd> Jump</span><span><kbd>J</kbd> / click · Attack</span><span><kbd>K</kbd> Power attack</span><span><kbd>ESC</kbd> Pause</span></div>
+    <footer><span>A pixel-sized adventure, made for your browser.</span><span>ZARVIVAL · 5 levels · 3 fighters</span></footer>
+  </main>
+  <script type="module" src="/game.js"></script>
+</body>
+</html>

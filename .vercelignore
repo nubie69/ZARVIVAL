@@ -1,0 +1,8 @@
+.git
+node_modules
+dist
+ZARVIVAL_FINAL/*.docx
+ZARVIVAL_FINAL/*.mp4
+ZARVIVAL_FINAL/ZAR Studio(Final)/bin
+ZARVIVAL_FINAL/ZAR Studio(Final)/out
+ZARVIVAL_FINAL/ZAR Studio(Final)/*.zip
