@@ -1,4 +1,4 @@
-import { World, characters, decodeLevel, TILE, WIDTH, HEIGHT } from './engine.js';
+import { World, characters, decodeLevel, enemySprite, TILE, WIDTH, HEIGHT } from './engine.js';
 const $=id=>document.getElementById(id);
 const canvas=$('game'),ctx=canvas.getContext('2d');ctx.imageSmoothingEnabled=false;
 const images={},levels=[],keys=new Set();
@@ -68,10 +68,8 @@ function draw(elapsed=0){
     else if(o.type<=6)sprite('Shooters.png',64,32,0,0,x,y,64,32,o.type===6);
   }
   for(const e of world.enemies){if(e.hp<=0)continue;
-    const row=e.hurt>0?3:e.windup>0?2:1,frame=Math.floor(t*9)%(e.hurt>0?3:e.windup>0?8:(e.type===1?4:7));
-    if(e.type===0)sprite('mushroom_sprite.png',80,64,row,frame,e.x-39,e.y-48,120,96,e.facing>0);
-    if(e.type===1)sprite('Armadillo.png',32,32,row,frame,e.x-12,e.y-18,58,58,e.facing>0);
-    if(e.type===2)sprite('Froggy.png',384,128,row,frame,e.x-75,e.y-28,192,64,e.facing>0);
+    const visual=enemySprite(e);
+    sprite(visual.file,visual.sw,visual.sh,visual.row,visual.frame,visual.x,visual.y,visual.w,visual.h,visual.flip);
     if(e.hp<e.maxHp||e.windup>0){ctx.fillStyle='#17241c';ctx.fillRect(e.x-4,e.y-14,e.w+8,5);ctx.fillStyle='#ef9480';ctx.fillRect(e.x-4,e.y-14,(e.w+8)*Math.max(0,e.hp)/e.maxHp,5);}
     if(e.windup>0){ctx.fillStyle='#ffc971';ctx.font='bold 28px system-ui';ctx.fillText('!',e.x+e.w/2-5,e.y-26);ctx.strokeStyle='#ffc971';ctx.lineWidth=2;ctx.beginPath();ctx.arc(e.x+e.w/2,e.y+e.h,30,Math.PI,Math.PI*2);ctx.stroke();}
   }

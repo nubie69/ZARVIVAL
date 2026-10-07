@@ -1,6 +1,18 @@
 export const TILE = 48;
 export const WIDTH = 1248;
 export const HEIGHT = 672;
+export const enemyTypes = [
+  { file:'mushroom_sprite.png', sw:80, sh:64, scale:1.5, w:40, h:46, patrol:55, chase:85, frames:[7,7,10,4] },
+  { file:'Armadillo.png', sw:32, sh:32, scale:1.8, w:38, h:22, patrol:70, chase:125, frames:[8,4,8,3] },
+  { file:'Froggy.png', sw:384, sh:128, scale:.5, w:42, h:32, patrol:55, chase:95, frames:[5,8,8,4] },
+];
+
+export function enemySprite(enemy) {
+  const type=enemyTypes[enemy.type];
+  const row=enemy.hurt>0?3:enemy.windup>0?2:Math.abs(enemy.vx)>5?1:0;
+  const w=type.sw*type.scale,h=type.sh*type.scale;
+  return { file:type.file, sw:type.sw, sh:type.sh, row, frame:Math.floor(enemy.animationTime*9)%type.frames[row], x:enemy.x+enemy.w/2-w/2, y:enemy.y+enemy.h-h, w, h, flip:enemy.facing>0 };
+}
 export const characters = [
   { name: 'Goblin', file: 'player1.png', sw: 64, sh: 64, frames: [4,10,10,2,12], ox:25, oy:10, speed:310, hp:100, damage:25, cooldown:.32, regen:8 },
   { name: 'Rez', file: 'aliah.png', sw: 49, sh: 49, frames: [8,10,6,6,9], ox:10, oy:18, speed:270, hp:115, damage:30, cooldown:.4, regen:12 },
@@ -34,6 +46,20 @@ export function solid(level, x, y) {
 export function overlaps(a,b) {
   return a.x < b.x+b.w && a.x+a.w > b.x && a.y < b.y+b.h && a.y+a.h > b.y;
 }
+function floorAt(level,x,y) {
+  // Map boundaries are walls, not ground to stand on.
+  return x>=0&&x<level.width*TILE&&y<level.height*TILE&&solid(level,x,y);
+}
+function canChase(level,enemy,player) {
+  if(Math.abs(player.x-enemy.x)>320||Math.abs(player.y+player.h-enemy.y-enemy.h)>40)return false;
+  const from=enemy.x+enemy.w/2,to=player.x+player.w/2;
+  const count=Math.max(1,Math.ceil(Math.abs(to-from)/12));
+  for(let i=1;i<=count;i++){
+    const x=from+(to-from)*i/count;
+    if(solid(level,x,enemy.y+enemy.h/2)||!floorAt(level,x,enemy.y+enemy.h+2))return false;
+  }
+  return true;
+}
 export function move(body, dx, dy, level) {
   // Small steps prevent tunnelling through walls during power attacks.
   const steps = Math.max(1, Math.ceil(Math.max(Math.abs(dx),Math.abs(dy))/4));
@@ -53,7 +79,18 @@ export class World {
     this.level=level; this.character=character; this.stats=characters[character]; this.time=0; this.status='playing'; this.kills=0; this.score=0; this.events=[];
     this.player={...level.spawn,w:27,h:38,vy:0,facing:1,hp:this.stats.hp,maxHp:this.stats.hp,power:100,invulnerable:0,attack:0,cooldown:0,grounded:false,vx:0,knockback:0,coyote:0,jumpBuffer:0};
     this.jumpHeld=false;
-    this.enemies=level.enemies.map((e,i)=>({...e,w:e.type===2?42:30,h:32,vy:0,hp:e.type===0?50:25,maxHp:e.type===0?50:25,facing:i%2?1:-1,hurt:0,windup:0,recovery:0,knockback:0}));
+    this.enemies=level.enemies.map((spawn,i)=>{
+      const type=enemyTypes[spawn.type];
+      const e={...spawn,w:type.w,h:type.h,x:spawn.x+(TILE-type.w)/2,vy:0,vx:0,hp:spawn.type===0?50:25,maxHp:spawn.type===0?50:25,facing:i%2?1:-1,hurt:0,windup:0,recovery:0,knockback:0,grounded:false,turnLock:0,animationTime:0,animationRow:0};
+      // Level markers identify a tile, not the top of differently sized bodies.
+      // Align enemies to the floor immediately below that marker before rendering.
+      const floorY=(Math.floor(spawn.y/TILE)+1)*TILE;
+      if(floorAt(level,e.x+e.w/2,floorY)){
+        e.y=floorY-e.h;
+        e.grounded=true;
+      }
+      return e;
+    });
     this.objects=level.objects.map(o=>({...o,w:32,h:o.type===4?15:32,used:false,timer:1.5}));
     this.projectiles=[]; this.hit=new Set();
   }
@@ -94,15 +131,24 @@ export class World {
       if(e.hp<=0)continue;
       e.hurt=Math.max(0,e.hurt-dt);
       e.recovery=Math.max(0,e.recovery-dt);
-      const near=Math.abs(p.x-e.x)<320&&Math.abs(p.y-e.y)<65;
-      if(near&&e.windup<=0)e.facing=p.x>e.x?1:-1;
+      e.turnLock=Math.max(0,e.turnLock-dt);
+      const type=enemyTypes[e.type];
+      const chasing=e.grounded&&canChase(this.level,e,p);
+      const resting=e.hurt>0||e.windup>0||e.recovery>0;
+      if(chasing&&!resting&&e.turnLock<=0)e.facing=p.x+p.w/2>e.x+e.w/2?1:-1;
       e.vy=Math.min(900,e.vy+1700*dt);
-      const ahead=e.facing>0?e.x+e.w+6:e.x-6;
-      if(e.windup<=0&&!solid(this.level,ahead,e.y+e.h+5)&&solid(this.level,e.x+e.w/2,e.y+e.h+5))e.facing*=-1;
-      const speed=(e.type===1?100:65)*e.facing;
-      const result=move(e,((e.hurt>0||e.windup>0||e.recovery>0?0:speed)+e.knockback)*dt,e.vy*dt,this.level);
+      const ahead=e.facing>0?e.x+e.w+8:e.x-8;
+      const obstacle=solid(this.level,ahead,e.y+e.h/2);
+      const ledge=e.grounded&&!floorAt(this.level,ahead,e.y+e.h+2);
+      if(!resting&&(obstacle||ledge)){
+        e.facing*=-1;e.turnLock=.5;e.vx=0;
+      }
+      const target=resting||!e.grounded?0:e.facing*(chasing&&e.turnLock<=0?type.chase:type.patrol);
+      e.vx+=Math.max(-420*dt,Math.min(420*dt,target-e.vx));
+      const result=move(e,(e.vx+e.knockback)*dt,e.vy*dt,this.level);
+      e.grounded=result.grounded;
       e.knockback*=Math.exp(-12*dt);
-      if(result.blockedX)e.facing*=-1;
+      if(result.blockedX){e.vx=0;e.knockback=0;if(!resting&&e.turnLock<=0){e.facing*=-1;e.turnLock=.5;}}
       if(e.y>this.level.height*TILE){e.hp=0;this.kills++;this.score+=100;continue;}
       if(p.attack>0&&overlaps(attackBox,e)&&!this.hit.has(e)){
         const amount=this.powerAttack?this.stats.damage*2:this.stats.damage;
@@ -113,8 +159,11 @@ export class World {
       if(e.hp>0&&e.hurt<=0){
         const strike={x:e.facing>0?e.x:e.x-38,y:e.y-8,w:e.w+38,h:e.h+16};
         if(e.windup>0){e.windup=Math.max(0,e.windup-dt);if(e.windup===0){e.recovery=.8;this.emit('enemyAttack',e);if(overlaps(p,strike))this.damage([15,20,25][e.type],e.x);}}
-        else if(e.recovery<=0&&overlaps(p,strike)){e.windup=.42;this.emit('warning',e);}
+        else if(e.recovery<=0&&chasing&&overlaps(p,strike)){e.windup=.42;this.emit('warning',e);}
       }
+      if(e.hurt>0||e.windup>0||e.recovery>0)e.vx=0;
+      const row=e.hurt>0?3:e.windup>0?2:Math.abs(e.vx)>5?1:0;
+      e.animationTime=row===e.animationRow?e.animationTime+dt:0;e.animationRow=row;
     }
     for(const o of this.objects){
       if(o.used)continue;

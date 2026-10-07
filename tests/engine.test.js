@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { World, characters, decodeLevel, move, solid, TILE } from '../web/engine.js';
+import { World, characters, decodeLevel, enemySprite, move, solid, TILE } from '../web/engine.js';
 
 function level() {
   return { width:10,height:14,spawn:{x:96,y:442},tiles:Array.from({length:14},(_,y)=>Array(10).fill(y>=10?0:11)),enemies:[{type:0,x:320,y:448}],objects:[] };
@@ -92,4 +92,45 @@ test('water kills and health potions are consumed only once',()=>{
   const map=level();map.objects=[{type:0,x:96,y:442}];const world=new World(map);world.player.hp=50;
   world.update(1/60);assert.equal(world.player.hp,75);world.update(1/60);assert.equal(world.player.hp,75);
   world.level.tiles[9][2]=48;world.update(1/60);assert.equal(world.status,'dead');
+});
+
+test('every enemy starts on its platform and its sprite ends at its feet',()=>{
+  for(let type=0;type<3;type++){
+    const map=level();map.enemies=[{type,x:240,y:432}];const world=new World(map),e=world.enemies[0];
+    assert.equal(e.y+e.h,480);assert.equal(e.grounded,true);
+    for(const facing of [-1,1])for(const phase of ['idle','run','attack','hurt']){
+      e.facing=facing;e.vx=phase==='run'?60:0;e.windup=phase==='attack'?.3:0;e.hurt=phase==='hurt'?.2:0;e.animationTime=.3;
+      const visual=enemySprite(e);
+      assert.ok(Math.abs(visual.y+visual.h-(e.y+e.h))<.001);
+      assert.equal(visual.x+visual.w/2,e.x+e.w/2);
+      assert.equal(visual.row,{idle:0,run:1,attack:2,hurt:3}[phase]);
+    }
+  }
+});
+
+test('enemies patrol safely at cliffs without flipping direction every frame',()=>{
+  for(let type=0;type<3;type++){
+    const map=level();map.width=20;map.spawn={x:700,y:442};
+    map.tiles=Array.from({length:14},(_,y)=>Array.from({length:20},(_,x)=>y>=10&&(x<6||x>=10)?0:11));
+    map.enemies=[{type,x:240,y:432}];const world=new World(map),e=world.enemies[0];e.facing=1;
+    let turns=0;
+    for(let i=0;i<1800;i++){
+      const facing=e.facing;world.update(1/60);if(facing!==e.facing)turns++;
+      assert.equal(world.status,'playing');assert.ok(e.hp>0);
+      assert.ok(e.x>=0&&e.x+e.w<=288);assert.ok(e.y+e.h<=480.01);
+    }
+    assert.ok(turns<30,`Enemy ${type} turned ${turns} times in 30 seconds`);
+  }
+});
+
+test('chase accelerates smoothly and walls prevent chasing through terrain',()=>{
+  const open=level();open.spawn={x:390,y:442};open.enemies=[{type:0,x:240,y:432}];
+  const chaser=new World(open),e=chaser.enemies[0];e.facing=1;
+  chaser.update(1/60);assert.ok(e.vx>0&&e.vx<20);
+  for(let i=0;i<16;i++)chaser.update(1/60);
+  assert.ok(e.vx>55);
+  const closed=level();closed.spawn={x:390,y:442};closed.enemies=[{type:0,x:240,y:432}];closed.tiles[9][7]=0;
+  const patrol=new World(closed),guard=patrol.enemies[0];guard.facing=1;
+  for(let i=0;i<30;i++)patrol.update(1/60);
+  assert.ok(guard.vx<=55);assert.ok(guard.x+guard.w<=7*TILE);
 });
