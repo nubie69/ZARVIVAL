@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { World, characters, decodeLevel, enemySprite, move, solid, TILE } from '../web/engine.js';
+import { World, characters, decodeLevel, enemySprite, playerSprite, objectSprite, move, solid, TILE } from '../web/engine.js';
 
 function level() {
   return { width:10,height:14,spawn:{x:96,y:442},tiles:Array.from({length:14},(_,y)=>Array(10).fill(y>=10?0:11)),enemies:[{type:0,x:320,y:448}],objects:[] };
@@ -133,4 +133,48 @@ test('chase accelerates smoothly and walls prevent chasing through terrain',()=>
   const patrol=new World(closed),guard=patrol.enemies[0];guard.facing=1;
   for(let i=0;i<30;i++)patrol.update(1/60);
   assert.ok(guard.vx<=55);assert.ok(guard.x+guard.w<=7*TILE);
+});
+
+test('dash consumes power, has cooldown and protects against strikes',()=>{
+  const world=new World(level());assert.equal(world.dash(),true);
+  assert.equal(world.player.power,80);assert.equal(world.dash(),false);
+  const hp=world.player.hp;world.damage(25);assert.equal(world.player.hp,hp);
+  const x=world.player.x;world.update(1/60);assert.ok(world.player.x>x+8);
+  world.player.dashCooldown=0;world.player.power=10;assert.equal(world.dash(),false);
+});
+test('dash stops at a wall and cannot tunnel through it',()=>{
+  const map=level();map.tiles[9][3]=0;const world=new World(map);
+  world.dash();for(let i=0;i<12;i++)world.update(1/60);
+  assert.ok(world.player.x+world.player.w<=144);assert.equal(world.player.dash,0);
+});
+test('all player sprites anchor their opaque foot line and body center in both directions',()=>{
+  for(let i=0;i<characters.length;i++)for(const facing of [-1,1]){
+    const w=new World(level(),i),p=w.player;p.facing=facing;
+    const v=playerSprite(p,i,1),c=characters[i];
+    assert.equal(v.y+c.foot*1.5,p.y+p.h);
+    assert.equal(v.x+(v.flip?c.sw-c.anchor:c.anchor)*1.5,p.x+p.w/2);
+  }
+});
+test('pickups, containers, spikes and cannons align to their platform',()=>{
+  const map=level();map.objects=Array.from({length:7},(_,type)=>({type,x:200,y:432}));const world=new World(map);
+  for(const o of world.objects){const v=objectSprite(o,0);assert.equal(o.y+o.h,480);if(o.type>1)assert.equal(v.y+v.h,480);}
+});
+test('cannonballs spawn at the muzzle, can be blocked, and stop at walls',()=>{
+  const map=level();map.objects=[{type:6,x:240,y:432}];const world=new World(map);
+  const cannon=world.objects[0];cannon.timer=0;world.update(1/60);
+  assert.equal(world.projectiles.length,1);assert.ok(world.projectiles[0].x>=cannon.x+cannon.w);
+  world.projectiles=[{x:150,y:455,w:14,h:14,vx:-240}];world.player.power=50;world.attack();world.update(1/60);
+  assert.equal(world.projectiles.length,0);assert.ok(world.events.some(e=>e.type==='parry'));assert.ok(world.player.power>50);
+  world.player.attack=0;world.level.tiles[9][3]=0;world.projectiles=[{x:190,y:450,w:14,h:14,vx:-1200}];
+  world.update(.1);assert.equal(world.projectiles.length,0);assert.equal(world.player.hp,100);
+});
+test('melee attacks cannot hit enemies through walls',()=>{
+  const map=level();map.enemies=[{type:0,x:155,y:432}];map.tiles[9][3]=0;
+  const world=new World(map);world.attack();world.update(1/60);assert.equal(world.enemies[0].hp,50);
+});
+test('holding attack repeats swings and combo resets on damage',()=>{
+  const map=level();map.enemies=[{type:0,x:135,y:432},{type:0,x:300,y:432}];const world=new World(map);
+  for(let i=0;i<50;i++){world.player.x=world.enemies[0].x-40;world.update(1/60,{attack:true});}
+  assert.ok(world.events.filter(e=>e.type==='attack').length>=2);assert.ok(world.maxCombo>=2);
+  world.player.invulnerable=0;world.damage(10);assert.equal(world.combo,0);
 });

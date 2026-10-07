@@ -19,11 +19,15 @@ If port 3000 is already in use, the server automatically chooses the next availa
 - Jump: Space or up arrow
 - Attack: J or left click
 - Power attack: K or right click (uses power, which regenerates)
+- Dodge dash: Shift (uses 20 power, with brief protection from enemy strikes)
 - Pause: Escape or the Pause button
 - Touch devices: use the on-screen controls
-- Sound: enable with the Sound button; browsers require a user gesture before audio can play
+- Sound: enable in Settings; volume, weather, and visual-effects preferences are saved in your browser
+- Full screen: use the Full screen button when supported by your browser
 
 Jump presses are buffered shortly before landing, and you can still jump briefly after leaving a ledge. Tap jump for a short hop or hold it to jump higher. Holding jump does not repeatedly bounce on landing.
+
+Hold J or the touch Attack button to keep swinging. Slash incoming cannonballs to block them and regain a little power. Chain hits within two seconds to build a combo; taking damage breaks it. Dash stops at walls and does not protect against falling into water. Pause to restart the current level or return to character selection.
 
 Goblin moves fastest, Rez regenerates power fastest, and Skull has the most health and deals the most damage. Enemies show an amber warning before striking: dodge or hit them to interrupt the attack. Hits and pickups produce particles and floating labels, and the radar shows remaining enemies across the level. Reduced-motion preferences disable particles and camera shake.
 
@@ -32,6 +36,8 @@ Enemies stand with their feet on the platform surface and use collision boxes si
 Trees use individual animation frames, with roots anchored to the terrain, and the distant forest scrolls in layers. Levels have clear skies, forest rain, morning mist, windy rain, and clearing skies respectively. Rain stops at terrain and platform roofs. The **Weather** button toggles atmospheric effects; reduced-motion preferences keep the atmosphere static. Scenery and weather animations pause with gameplay.
 
 Scores and a level timer track each attempt. Level progress and the best score are saved locally in your browser. **Continue** resumes the saved level with your fighter and accumulated score; health resets at the start of each level. A retry resets that level's score. The game remains playable when browser storage is unavailable.
+
+The HUD shows the named stage, its weather, enemies defeated, and progress through the five levels. The camera looks ahead in the direction you face. Static terrain is drawn into a reusable canvas once per level, while water, weather, and characters remain animated. Menus include larger character portraits, a loading indicator, and recovery from failed asset loads. Touch controls support simultaneous movement and attacks, including dash.
 
 The browser adaptation reuses the original sprite sheets and RGB-encoded level maps, with a JavaScript Canvas engine for movement, combat, enemies, potions, breakable containers, spikes, water, and cannons. It includes pause, retry, and game-completion screens. Physics, enemy behavior, and UI are adapted for the browser; this is not an exact emulation of the Java application. The original Java sources are preserved.
 

@@ -1,26 +1,138 @@
-:root{color-scheme:dark;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#e9efe4;background:#111a18}*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 60% 0%,#26382b 0,transparent 65%)}button,a{-webkit-tap-highlight-color:transparent}button{font:inherit;color:inherit;cursor:pointer;background:#213229;border:1px solid #425346;border-radius:8px;padding:10px 16px}button:hover{background:#344a36}button:focus-visible,canvas:focus-visible,a:focus-visible{outline:3px solid #d6ef93;outline-offset:3px}button:disabled{opacity:.5;cursor:wait}header{max-width:1360px;margin:auto;display:flex;align-items:center;gap:22px;padding:28px 36px}.brand{font-size:25px;font-weight:900;letter-spacing:3px;color:#eff1df;text-decoration:none}.brand span{color:#d6ef93}.edition{font-size:10px;letter-spacing:2px;color:#a7b7a1}header button{margin-left:auto;font-size:12px}main{max-width:1320px;margin:auto;padding:0 36px}.intro{display:flex;justify-content:space-between;align-items:end;margin:30px 0 26px}.eyebrow{color:#d6ef93;font-size:11px;letter-spacing:3px;font-weight:700}h1{font-size:clamp(26px,3vw,40px);letter-spacing:-1.5px;margin:8px 0}h2{font-size:clamp(24px,3vw,42px);margin:8px 0;letter-spacing:-1px}.intro>p{color:#abb9aa;line-height:1.7;font-size:14px;margin:0}.game{border:1px solid #4d5a41;border-radius:12px;overflow:hidden;box-shadow:0 25px 70px #0005}.hud{display:flex;align-items:center;gap:20px;background:#18241e;padding:12px 20px;font-size:11px;letter-spacing:1.2px;min-height:49px}.hud>span:first-child{color:#d6ef93}.hud>span:nth-last-child(2){margin-left:auto}.hud button{font-size:11px;padding:4px 10px}.hud meter{width:120px;height:12px;vertical-align:middle;accent-color:#d6ef93}.viewport{position:relative;aspect-ratio:26/14;background:#263d35}#game{width:100%;height:100%;display:block;image-rendering:pixelated;touch-action:none}.overlay{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;align-items:center;background:linear-gradient(#0f211bdd,#14251bf0);text-align:center;padding:16px}.overlay[hidden],[hidden]{display:none!important}.overlay>p:not(.eyebrow){font-size:14px;color:#b9c7b4;max-width:460px}.characters{display:flex;gap:14px;margin:15px 0 24px}.characters button{width:150px;display:flex;flex-direction:column;align-items:center;background:#243a2ddd;border:1px solid #526348;padding:10px}.characters .selected{border:2px solid #d6ef93;background:#35482c}.characters canvas{image-rendering:pixelated;max-width:100%;height:85px;width:85px}.characters strong{font-size:14px}.characters small{font-size:10px;color:#b5c4aa;margin:6px 0}.primary{background:#d6ef93;color:#172119;font-size:14px;font-weight:750;min-width:230px;padding:15px 20px;border:0}.primary:hover{background:#e6ffab}.primary span{padding-left:25px}#menu{margin-top:12px;font-size:12px}.instructions{display:flex;justify-content:center;gap:24px;padding:22px 0;color:#aab9a8;font-size:11px}kbd{font-family:inherit;border:1px solid #41513f;border-radius:4px;padding:3px 6px;font-size:10px;color:#e4ebd8}.touch{display:none;gap:8px;padding:10px;background:#18241e}.touch button{flex:1;touch-action:none;user-select:none}footer{display:flex;justify-content:space-between;color:#7c917e;font-size:11px;margin:12px 0 28px;border-top:1px solid #2d3e31;padding-top:20px}@media(pointer:coarse){.touch{display:flex}}@media(max-width:700px){header{padding:20px;gap:12px}.edition{display:none}main{padding:0 12px}.intro{margin:15px 0}.intro>p{display:none}.hud{padding:8px 10px;gap:8px;font-size:9px}.hud meter{width:70px}.viewport{aspect-ratio:4/3}#game{object-fit:contain}.characters{gap:7px;margin:8px 0 12px}.characters button{width:90px;padding:6px}.characters canvas{height:60px;width:60px}.characters small{display:none}.overlay>p:not(.eyebrow){font-size:11px;margin:5px}.overlay .eyebrow{margin:3px}.primary{padding:11px;min-width:190px}.instructions{flex-wrap:wrap;gap:14px;padding:16px 4px}footer{gap:15px;font-size:9px}}
-
-#continue{margin-top:10px;border-color:#9eaf77;font-size:12px}
-header{flex-wrap:wrap}
-header #weather{margin-left:0}
-#best-label{font-size:10px;letter-spacing:2px;margin:12px 0 0;color:#a7b889}
-#health-number{font-size:10px;margin-left:6px;letter-spacing:0;font-variant-numeric:tabular-nums}
-#score-label{color:#c9d8b8;white-space:nowrap;font-variant-numeric:tabular-nums}
-.game-tip{text-align:center;font-size:12px;color:#a8b99e;line-height:1.6;margin:0 0 20px}
-.characters button{width:170px}
-.characters small{line-height:1.5;min-height:30px}
-@media(max-width:900px){.hud{gap:10px;letter-spacing:.4px}.hud meter{width:80px}.hud #health-number{display:none}}
-@media(max-width:700px){
-  .viewport{height:clamp(240px,60vw,420px);aspect-ratio:auto}
-  .viewport:has(.overlay:not([hidden])){height:440px}
-  .overlay{overflow-y:auto}
-  .characters{width:100%;max-width:320px}
-  .characters button{width:calc((100% - 14px)/3);min-width:0}
-  .characters small{display:block;font-size:9px;min-height:38px}
-  .hud{flex-wrap:wrap;row-gap:8px}
-  #score-label{font-size:9px}
-  .game-tip{font-size:11px}
-  .touch button{min-width:0;padding:10px 5px;font-size:11px}
+:root {
+  color-scheme: dark;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: #e9efe4;
+  background: #101b18;
+  --lime: #d6ef93;
+  --muted: #a1b49d;
+  --border: #3b5040;
 }
-@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto}}
-
+* { box-sizing: border-box; }
+body { margin: 0; background: radial-gradient(ellipse at 60% 0%, #293d2e, transparent 65%); }
+button, a, summary { -webkit-tap-highlight-color: transparent; }
+button, summary { font: inherit; color: inherit; cursor: pointer; }
+button { background: #213229; border: 1px solid var(--border); border-radius: 8px; padding: 10px 16px; }
+button:hover { background: #344a36; }
+button:active { transform: translateY(1px); }
+:focus-visible { outline: 3px solid var(--lime); outline-offset: 3px; }
+button:disabled { opacity: .5; cursor: wait; }
+[hidden] { display: none !important; }
+header { max-width: 1360px; margin: auto; display: flex; align-items: center; gap: 16px; padding: 24px 36px; }
+.brand { font-size: 25px; font-weight: 900; letter-spacing: 3px; color: #eff1df; text-decoration: none; }
+.brand span { color: var(--lime); }
+.edition { font-size: 10px; letter-spacing: 2px; color: var(--muted); }
+header button, .settings summary { font-size: 12px; }
+.settings { margin-left: auto; position: relative; z-index: 5; }
+.settings summary { padding: 10px 16px; border: 1px solid var(--border); border-radius: 8px; }
+.settings-panel { position: absolute; right: 0; top: calc(100% + 12px); width: 240px; background: #18291f; border: 1px solid #596d49; border-radius: 12px; box-shadow: 0 15px 40px #0007; padding: 14px; display: grid; gap: 10px; }
+.settings-panel label { display: grid; gap: 10px; padding: 6px; font-size: 12px; }
+input[type=range] { width: 100%; accent-color: var(--lime); }
+main { max-width: 1320px; margin: auto; padding: 0 36px; }
+.intro { display: flex; justify-content: space-between; align-items: end; margin: 22px 0 26px; }
+.eyebrow { color: var(--lime); font-size: 10px; letter-spacing: 3px; font-weight: 750; }
+h1 { font-size: clamp(26px, 3vw, 40px); letter-spacing: -1.5px; margin: 8px 0; }
+h2 { font-size: clamp(24px, 3vw, 42px); margin: 8px 0; letter-spacing: -1px; }
+.intro > p { color: var(--muted); line-height: 1.7; font-size: 14px; margin: 0; }
+.game { border: 1px solid #617249; border-radius: 14px; overflow: hidden; box-shadow: 0 25px 70px #0005; background: #16231c; }
+.hud { display: flex; align-items: center; gap: 18px; padding: 12px 20px; font-size: 11px; letter-spacing: 1px; min-height: 49px; }
+#level-label { color: var(--lime); }
+#enemies-label { margin-left: auto; color: #efcbb0; }
+.hud button { font-size: 11px; padding: 5px 12px; }
+.hud meter { width: 110px; height: 13px; vertical-align: middle; accent-color: var(--lime); }
+#health-number { font-size: 10px; margin-left: 6px; letter-spacing: 0; font-variant-numeric: tabular-nums; }
+#score-label { color: #c9d8b8; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.viewport { position: relative; aspect-ratio: 26/14; background: #263d35; }
+#game { width: 100%; height: 100%; display: block; image-rendering: pixelated; touch-action: none; object-fit: contain; }
+.overlay { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; background: linear-gradient(#0f211bd9, #14251bf2); text-align: center; padding: 24px; overflow-y: auto; }
+.overlay > p:not(.eyebrow) { font-size: 14px; color: #b9c7b4; max-width: 500px; line-height: 1.6; }
+.characters { display: flex; gap: 14px; margin: 14px 0 22px; width: min(100%, 560px); }
+.characters button { flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: center; background: #243a2ddd; border: 1px solid #526348; padding: 12px 8px; }
+.characters button:hover { background: #3d4e31; }
+.characters .selected { border-color: var(--lime); box-shadow: inset 0 0 0 1px var(--lime); background: #35482c; }
+.characters canvas { image-rendering: pixelated; height: 90px; width: 90px; max-width: 100%; }
+.characters strong { font-size: 15px; margin-top: 4px; }
+.characters small { font-size: 10px; color: #b5c4aa; margin: 6px 0; line-height: 1.6; min-height: 32px; }
+.primary { background: var(--lime); color: #172119; font-size: 14px; font-weight: 750; min-width: 240px; padding: 15px 24px; border: 0; box-shadow: 0 6px 24px #b1d67618; }
+.primary:hover { background: #e6ffab; }
+#continue { margin-top: 10px; border-color: #9eaf77; font-size: 12px; }
+.overlay #best-label { font-size: 10px; letter-spacing: 2px; margin: 12px 0 0; color: #a7b889; }
+.overlay-actions { display: flex; gap: 10px; margin-top: 16px; }
+.overlay-actions button { font-size: 12px; }
+.journey { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 15px 20px; border-top: 1px solid #3b5040; }
+.stage-info { display: grid; gap: 4px; min-width: 155px; }
+#stage-name { font-size: 13px; font-weight: 650; }
+#weather-name { font-size: 10px; color: var(--muted); }
+.stage-steps { display: flex; gap: 8px; }
+.stage-steps span { display: grid; place-items: center; width: 28px; height: 28px; border: 1px solid #43553e; border-radius: 50%; color: #83957b; font-size: 11px; }
+.stage-steps .current { background: var(--lime); color: #172119; border-color: var(--lime); font-weight: 800; }
+.stage-steps .cleared { color: var(--lime); border-color: #81965b; }
+.objective { display: grid; gap: 7px; min-width: 220px; font-size: 10px; color: var(--muted); }
+.objective progress { appearance: none; height: 5px; width: 100%; border: 0; border-radius: 5px; overflow: hidden; accent-color: var(--lime); background: #354631; }
+.objective progress::-webkit-progress-bar { background: #354631; }
+.objective progress::-webkit-progress-value { background: var(--lime); }
+.objective progress::-moz-progress-bar { background: var(--lime); }
+.touch { display: none; justify-content: space-between; gap: 20px; padding: 12px; border-top: 1px solid var(--border); }
+.touch-move, .touch-actions { display: flex; gap: 8px; }
+.touch button { touch-action: none; user-select: none; -webkit-user-select: none; min-height: 48px; min-width: 48px; padding: 12px; }
+.touch [data-key=KeyJ] { color: #18211a; background: var(--lime); font-weight: 750; }
+.instructions { display: flex; justify-content: center; flex-wrap: wrap; gap: 24px; padding: 22px 0; color: var(--muted); font-size: 11px; }
+kbd { font-family: inherit; border: 1px solid #41513f; border-radius: 4px; padding: 3px 6px; font-size: 10px; color: #e4ebd8; }
+.how-to { border: 1px solid #314432; border-radius: 10px; background: #18271b70; }
+.how-to summary { font-size: 12px; padding: 14px 18px; color: #bccbaa; }
+.tips-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 22px; padding: 0 18px 18px; }
+.tips-grid p { font-size: 12px; color: var(--muted); line-height: 1.7; margin: 0; }
+.tips-grid strong { color: #e3ecd5; display: block; margin-bottom: 4px; }
+.status { font-size: 12px; color: #efcbb0; }
+.status:empty { display: none; }
+footer { display: flex; justify-content: space-between; color: #7c917e; font-size: 11px; margin: 20px 0 28px; border-top: 1px solid #2d3e31; padding-top: 20px; }
+.game:fullscreen { border: 0; border-radius: 0; display: flex; flex-direction: column; justify-content: center; }
+.game:fullscreen .viewport { flex: 1; min-height: 0; aspect-ratio: auto; }
+.game:fullscreen .hud, .game:fullscreen .journey { flex-shrink: 0; }
+@media (pointer: coarse) { .touch { display: flex; } }
+@media (max-width: 900px) {
+  .hud { gap: 10px; letter-spacing: .4px; }
+  .hud meter { width: 70px; }
+  #health-number { display: none; }
+  .objective { min-width: 165px; }
+  .tips-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 700px) {
+  header { padding: 18px 14px; gap: 10px; flex-wrap: wrap; }
+  .brand { font-size: 22px; }
+  .edition { display: none; }
+  header button, .settings summary { font-size: 11px; padding: 8px 12px; }
+  main { padding: 0 10px; }
+  .intro { margin: 12px 0 18px; }
+  .intro > p { display: none; }
+  .hud { flex-wrap: wrap; padding: 10px; row-gap: 8px; font-size: 9px; }
+  #score-label { font-size: 9px; }
+  .viewport { height: clamp(240px, 58vw, 400px); aspect-ratio: auto; }
+  .viewport:has(.overlay:not([hidden])) { height: 440px; }
+  .overlay { padding: 18px 12px; }
+  .overlay > p:not(.eyebrow) { font-size: 12px; margin: 6px 0; }
+  .overlay .eyebrow { margin: 3px; }
+  .characters { gap: 7px; max-width: 350px; margin: 12px 0 16px; }
+  .characters button { padding: 8px 5px; }
+  .characters canvas { width: 66px; height: 66px; }
+  .characters strong { font-size: 13px; }
+  .characters small { font-size: 9px; min-height: 40px; }
+  .primary { padding: 12px 20px; min-width: 210px; }
+  .journey { padding: 12px; flex-wrap: wrap; gap: 12px; }
+  .stage-info { min-width: 0; }
+  .stage-steps { margin-left: auto; gap: 5px; }
+  .stage-steps span { width: 24px; height: 24px; }
+  .objective { flex-basis: 100%; }
+  .touch { gap: 10px; padding: 10px 7px; }
+  .touch-move, .touch-actions { gap: 5px; }
+  .touch button { padding: 10px 6px; min-width: 36px; font-size: 10px; }
+  .instructions { gap: 14px; padding: 18px 4px; }
+  .tips-grid { grid-template-columns: 1fr; gap: 16px; }
+  footer { gap: 15px; font-size: 9px; }
+}
+@media (orientation: landscape) and (pointer: coarse) and (max-height: 550px) {
+  header, .intro, .instructions, .how-to, footer { display: none; }
+  main { padding: 8px; }
+  .viewport { height: calc(100dvh - 170px); }
+  .viewport:has(.overlay:not([hidden])) { height: 440px; }
+}
+@media (prefers-reduced-motion: reduce) { button:active { transform: none; } }

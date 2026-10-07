@@ -9,23 +9,24 @@
   <link rel="stylesheet" href="/style.css">
 </head>
 <body>
-  <header><a href="/" class="brand">Z<span>Λ</span>RVIVAL</a><span class="edition">BROWSER EDITION</span><button id="sound" aria-pressed="false">Sound: off</button><button id="weather" aria-pressed="true" title="Toggle atmospheric effects">Weather: on</button></header>
+  <header><a href="/" class="brand">Z<span>Λ</span>RVIVAL</a><span class="edition">THE FOREST IS CALLING</span><details class="settings"><summary>Settings</summary><div class="settings-panel"><button id="sound" aria-pressed="false">Sound: off</button><label for="volume">Volume <input id="volume" type="range" min="0" max="100" value="50"></label><button id="weather" aria-pressed="true">Weather: on</button><button id="effects" aria-pressed="true">Effects: full</button></div></details><button id="fullscreen">Full screen</button></header>
   <main>
-    <div class="intro"><div><p class="eyebrow">INTO THE WILD</p><h1>Small heroes. Big fight.</h1></div><p>Choose your fighter. Defeat every enemy.<br>Survive all five levels.</p></div>
-    <section class="game" aria-label="ZARVIVAL game">
+    <div class="intro"><div><p class="eyebrow">FIVE WORLDS. ONE ADVENTURE.</p><h1>Make it out of the wild.</h1></div><p>Find your fighter. Find your rhythm.<br>Leave no enemy standing.</p></div>
+    <section class="game" id="arena" aria-label="ZARVIVAL game">
       <div class="hud"><span id="level-label">THE ADVENTURE AWAITS</span><div id="health-wrap" hidden>HP <meter id="health" min="0" max="100" value="100">100</meter><span id="health-number"></span></div><span id="score-label"></span><span id="enemies-label"></span><button id="pause" hidden>Pause</button></div>
       <div class="viewport">
-        <canvas id="game" width="1248" height="672" tabindex="0" aria-label="Game. Move with A and D or arrow keys, jump with Space, attack with J, power attack with K, pause with Escape."></canvas>
+        <canvas id="game" width="1248" height="672" tabindex="0" aria-label="Game. Move with A and D or arrow keys, jump with Space, attack with J, power attack with K, dodge with Shift, pause with Escape."></canvas>
         <div class="overlay" id="overlay">
           <p class="eyebrow" id="overlay-tag">YOUR NEXT ADVENTURE</p><h2 id="overlay-title">Choose your fighter</h2><p id="overlay-text" role="status">Loading the forest…</p>
           <div id="characters" class="characters"><button data-character="0" class="selected" aria-pressed="true"><canvas width="100" height="100"></canvas><strong>Goblin</strong><small>Fast · 100 HP · 25 damage</small></button><button data-character="1" aria-pressed="false"><canvas width="100" height="100"></canvas><strong>Rez</strong><small>Power regen · 115 HP · 30 damage</small></button><button data-character="2" aria-pressed="false"><canvas width="100" height="100"></canvas><strong>Skull</strong><small>Heavy hitter · 140 HP · 40 damage</small></button></div>
-          <button id="primary" class="primary" disabled>Enter the forest <span>→</span></button><button id="continue" hidden></button><p id="best-label"></p><button id="menu" hidden>Choose another fighter</button>
+          <button id="primary" class="primary" disabled>Enter the forest <span>→</span></button><button id="continue" hidden></button><p id="best-label"></p><div class="overlay-actions"><button id="restart" hidden>Restart this level</button><button id="menu" hidden>Choose another fighter</button></div>
         </div>
       </div>
-      <div class="touch" aria-label="Touch controls"><button data-key="ArrowLeft" aria-label="Move left">←</button><button data-key="ArrowRight" aria-label="Move right">→</button><button data-key="Space">Jump</button><button data-key="KeyJ">Attack</button><button data-key="KeyK">Power</button></div>
+      <div id="journey" class="journey" hidden><div class="stage-info"><span id="stage-name"></span><small id="weather-name"></small></div><div class="stage-steps" aria-label="Adventure progress"><span data-stage="0" aria-label="Level 1">1</span><span data-stage="1" aria-label="Level 2">2</span><span data-stage="2" aria-label="Level 3">3</span><span data-stage="3" aria-label="Level 4">4</span><span data-stage="4" aria-label="Level 5">5</span></div><div class="objective"><span id="objective-label"></span><progress id="objective" max="1" value="0" aria-label="Enemies defeated"></progress></div></div>
+      <div class="touch" aria-label="Touch controls"><div class="touch-move"><button data-key="ArrowLeft" aria-label="Move left">←</button><button data-key="ArrowRight" aria-label="Move right">→</button></div><div class="touch-actions"><button data-key="ShiftLeft">Dash</button><button data-key="Space">Jump</button><button data-key="KeyJ">Attack</button><button data-key="KeyK">Power</button></div></div>
     </section>
-    <div class="instructions"><span><kbd>A</kbd> <kbd>D</kbd> Move</span><span><kbd>SPACE</kbd> Jump</span><span><kbd>J</kbd> / click · Attack</span><span><kbd>K</kbd> Power attack</span><span><kbd>ESC</kbd> Pause</span></div>
-    <p class="game-tip">Tap jump for a short hop, hold for height. Strike during an enemy's amber warning to interrupt it. The radar tracks remaining enemies.</p>
+    <div class="instructions"><span><kbd>A</kbd> <kbd>D</kbd> Move</span><span><kbd>SPACE</kbd> Jump</span><span><kbd>J</kbd> / click · Attack</span><span><kbd>K</kbd> Power attack</span><span><kbd>SHIFT</kbd> Dodge dash</span><span><kbd>ESC</kbd> Pause</span></div>
+    <details class="how-to"><summary>A few tricks to stay alive</summary><div class="tips-grid"><p><strong>Find your footing.</strong> Tap jump for a short hop, or hold it for more height. Late jumps and early landing presses get a little forgiveness.</p><p><strong>Read the fight.</strong> Amber warnings mean an attack is coming. Interrupt with a hit, or dodge with Shift. Dash costs 20 power; power attacks cost 30.</p><p><strong>Keep the pressure on.</strong> Hold Attack to keep swinging. Chain hits for combos, and slash incoming cannonballs to block them.</p><p><strong>Explore the forest.</strong> Red potions and crates restore health. Blue potions restore power. The radar tracks enemies, and cleared levels save automatically.</p></div></details><p id="status" role="status" class="status"></p>
     <footer><span>A pixel-sized adventure, made for your browser.</span><span>ZARVIVAL · 5 levels · 3 fighters</span></footer>
   </main>
   <script type="module" src="/game.js"></script>

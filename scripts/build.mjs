@@ -14,7 +14,7 @@ for (const file of await readdir(resources)) {
   }
 }
 await cp(path.join(resources, 'lvls'), path.join(output, 'assets', 'lvls'), { recursive: true });
-for (const file of ['jump.wav', 'attack1.wav', 'die.wav', 'lvlcompleted.wav', 'level1.wav', 'level2.wav']) {
+for (const file of ['jump.wav', 'attack1.wav', 'attack2.wav', 'attack3.wav', 'die.wav', 'lvlcompleted.wav', 'level1.wav', 'level2.wav']) {
   await copyFile(path.join(resources, 'audio', file), path.join(output, 'assets', 'audio', file));
 }
 console.log('Built browser game in dist/');

@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
 test('browser controller loads sprites, resumes progress, advances levels and restarts', async () => {
-  const previous = new Map(['document','window','localStorage','Image','HTMLButtonElement','requestAnimationFrame'].map(key=>[key,globalThis[key]]));
+  const previous = new Map(['document','window','localStorage','Image','Audio','HTMLButtonElement','requestAnimationFrame'].map(key=>[key,globalThis[key]]));
   let nextFrame;
   const context = {
     drawImage(image,...args) {
@@ -18,6 +18,7 @@ test('browser controller loads sprites, resumes progress, advances levels and re
       data[(10*width+3)*4+1]=0;
       data[(10*width+8)*4+2]=7;
       data[(11*width+12)*4+2]=9;
+      for(let type=0;type<7;type++)data[(10*width+10+type)*4+2]=type;
       return {data};
     },
     clearRect(){},save(){},restore(){},translate(){},scale(){},fillRect(){},fillText(){},beginPath(){},arc(){},stroke(){},strokeRect(){},createLinearGradient(){return {addColorStop(){}};},
@@ -39,7 +40,9 @@ test('browser controller loads sprites, resumes progress, advances levels and re
     };
     globalThis.window={addEventListener(name,fn){keyboard[name]=fn;},matchMedia(){return {matches:true};}};
     globalThis.localStorage={getItem:key=>storage.get(key)??null,setItem:(key,value)=>storage.set(key,value),removeItem:key=>storage.delete(key)};
-    globalThis.HTMLButtonElement=Element;
+    globalThis.HTMLButtonElement=class extends Element {};
+    const voices=[];
+    globalThis.Audio=class{constructor(src){this.src=src;voices.push(this);}play(){return Promise.resolve();}pause(){}};
     globalThis.requestAnimationFrame=callback=>{nextFrame=callback;};
     globalThis.Image=class {
       set src(url){this.file=url;const file=new URL(`../ZARVIVAL_FINAL/ZAR Studio(Final)/res/${url.replace('/assets/','')}`,import.meta.url);const data=readFileSync(file);this.width=data.readUInt32BE(16);this.height=data.readUInt32BE(20);queueMicrotask(()=>this.onload());}
@@ -55,15 +58,21 @@ test('browser controller loads sprites, resumes progress, advances levels and re
     assert.match(elements.get('level-label').textContent,/LEVEL 4.*SKULL/);
     assert.equal(elements.get('health').max,140);
     assert.match(elements.get('score-label').textContent,/220 PTS/);
+    assert.equal(elements.get('journey').hidden,false);
+    assert.equal(elements.get('stage-name').textContent,'The Windward Wilds');
+    elements.get('sound').onclick();assert.equal(elements.get('sound').textContent,'Sound: on');assert.ok(voices.length>0);
+    elements.get('volume').value=30;elements.get('volume').oninput();assert.equal(JSON.parse(storage.get('zarvival-settings')).volume,.3);
     elements.get('weather').onclick();assert.equal(elements.get('weather').textContent,'Weather: off');
     nextFrame(1034);elements.get('weather').onclick();assert.equal(elements.get('weather').textContent,'Weather: on');
     elements.get('pause').onclick();assert.equal(elements.get('overlay-title').textContent,'Game paused');
     elements.get('primary').onclick();assert.equal(elements.get('overlay').hidden,true);
+    keyboard.keydown({code:'ShiftLeft',target:elements.get('game'),repeat:false,preventDefault(){}});
     keyboard.keydown({code:'KeyK',target:elements.get('game'),repeat:false,preventDefault(){}});
     // A real canvas is not necessary to verify menu transitions and sprite bounds.
     elements.get('game').listeners.pointerdown({button:2,preventDefault(){}});
     nextFrame(1117);
     assert.equal(elements.get('overlay-title').textContent,'Level cleared');
+    assert.equal(elements.get('objective').value,1);
     assert.deepEqual(JSON.parse(storage.get('zarvival-progress')),{level:4,character:2,score:330});
     elements.get('primary').onclick();nextFrame(1134);
     assert.match(elements.get('level-label').textContent,/LEVEL 5/);
@@ -74,6 +83,7 @@ test('browser controller loads sprites, resumes progress, advances levels and re
     elements.get('primary').onclick();nextFrame(1251);
     assert.match(elements.get('level-label').textContent,/LEVEL 1/);
     assert.match(elements.get('score-label').textContent,/0 PTS/);
+    elements.get('pause').onclick();assert.equal(elements.get('restart').hidden,false);elements.get('restart').onclick();nextFrame(1260);assert.equal(elements.get('overlay').hidden,true);assert.match(elements.get('score-label').textContent,/0 PTS/);
     elements.get('pause').onclick();elements.get('menu').onclick();
     for(let i=0;i<3;i++){
       buttons[i].onclick();elements.get('primary').onclick();nextFrame(1268+i*17);
